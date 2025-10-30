@@ -43,11 +43,11 @@ COPY --from=test /sln/Tests/results/*.xml .
 FROM build AS publish
 ARG VERSION_PREFIX=0.1.3
 ARG VERSION_SUFFIX
-RUN dotnet publish ./Source/**/Api.csproj --no-restore -c Release -v quiet -o app -p:VersionPrefix=${VERSION_PREFIX} -p:VersionSuffix=${VERSION_SUFFIX}
+RUN dotnet publish ./Source/Api/Api.csproj --no-restore -c Release -v quiet -o app -p:VersionPrefix=${VERSION_PREFIX} -p:VersionSuffix=${VERSION_SUFFIX}
 
 # Runtime Image
 FROM ${BASE_IMAGE_REPO}/${BASE_IMAGE_RUNTIME}:${BASE_IMAGE_RUNTIME_TAG} AS run
-WORKDIR /
+WORKDIR /app
 EXPOSE 8080
 COPY --from=publish /sln/app .
 ENTRYPOINT ["dotnet", "Epam.ItMarathon.ApiService.Api.dll"]
