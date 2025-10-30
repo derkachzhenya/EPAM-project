@@ -72,8 +72,25 @@ namespace Epam.ItMarathon.ApiService.Api.Endpoints
                 .ProducesProblem(StatusCodes.Status403Forbidden)
                 .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status500InternalServerError)
-                .WithSummary("Admin deletes user from his room. Returns 204 No Content on success.")
-                .WithDescription("Admin deletes user from his room. Returns 204 No Content on success.");
+                .WithSummary("Delete a user from the room (Admin only)")
+                .WithDescription(@"Allows the room administrator to remove a user from the room.
+
+**Requirements:**
+- Only the room administrator can delete users
+- Cannot delete yourself (the admin)
+- Cannot delete users from a closed room
+- User must exist and belong to the same room
+
+**Validations:**
+- Returns 404 if userCode is invalid
+- Returns 404 if user with specified id is not found
+- Returns 403 if caller is not an administrator
+- Returns 403 if users belong to different rooms
+- Returns 400 if admin tries to delete himself
+- Returns 400 if room is already closed
+
+**Success Response:**
+- Returns 204 No Content when user is successfully deleted");
 
 
             return application;
