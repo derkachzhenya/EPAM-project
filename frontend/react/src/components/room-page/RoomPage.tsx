@@ -72,8 +72,35 @@ const RoomPage = () => {
       false,
     );
 
+  const { fetchData: deleteParticipant, isLoading: isDeleting } =
+    useFetch<void>(
+      {
+        url: "",
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        onSuccess: () => {
+          showToast(
+            "Participant successfully removed from the room.",
+            "success",
+            "large",
+          );
+          fetchParticipants();
+        },
+        onError: () => {
+          showToast("Failed to delete participant. Try again.", "error", "large");
+        },
+      },
+      false,
+    );
+
+  const handleDeleteParticipant = (participantId: number) => {
+    deleteParticipant({
+      url: `${BASE_API_URL}/api/users/${participantId}?userCode=${userCode}`,
+    });
+  };
+
   const isLoading =
-    isLoadingRoomDetails || isLoadingParticipants || isRandomizing;
+    isLoadingRoomDetails || isLoadingParticipants || isRandomizing || isDeleting;
 
   if (!userCode) {
     return null;
@@ -87,6 +114,7 @@ const RoomPage = () => {
         participants={participants ?? []}
         roomDetails={roomDetails ?? ({} as GetRoomResponse)}
         onDrawNames={() => fetchRandomize()}
+        onDeleteParticipant={handleDeleteParticipant}
       />
     </main>
   );

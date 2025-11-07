@@ -1,19 +1,23 @@
 import { useState } from "react";
 import { useParams } from "react-router";
+import { createPortal } from "react-dom";
 import ParticipantCard from "@components/common/participant-card/ParticipantCard";
 import ParticipantDetailsModal from "@components/common/modals/participant-details-modal/ParticipantDetailsModal";
+import Button from "@components/common/button/Button";
 import type { Participant } from "@types/api";
 import {
   MAX_PARTICIPANTS_NUMBER,
   generateParticipantLink,
 } from "@utils/general";
-import { type ParticipantsListProps, type PersonalInformation } from "./types";
+import { type ParticipantsListProps, type PersonalInformation, type ParticipantToDelete } from "./types";
 import "./ParticipantsList.scss";
 
-const ParticipantsList = ({ participants }: ParticipantsListProps) => {
+const ParticipantsList = ({ participants, onDeleteParticipant }: ParticipantsListProps) => {
   const { userCode } = useParams();
   const [selectedParticipant, setSelectedParticipant] =
     useState<PersonalInformation | null>(null);
+  const [participantToDelete, setParticipantToDelete] =
+    useState<ParticipantToDelete | null>(null);
 
   const admin = participants?.find((participant) => participant?.isAdmin);
   const restParticipants = participants?.filter(
@@ -35,6 +39,25 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
   };
 
   const handleModalClose = () => setSelectedParticipant(null);
+
+  const handleDeleteButtonClick = (participant: Participant) => {
+    setParticipantToDelete({
+      id: participant.id,
+      firstName: participant.firstName,
+      lastName: participant.lastName,
+    });
+  };
+
+  const handleDeleteConfirm = () => {
+    if (participantToDelete && onDeleteParticipant) {
+      onDeleteParticipant(participantToDelete.id);
+    }
+    setParticipantToDelete(null);
+  };
+
+  const handleDeleteCancel = () => {
+    setParticipantToDelete(null);
+  };
 
   return (
     <div
@@ -82,6 +105,11 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
                   ? () => handleInfoButtonClick(user)
                   : undefined
               }
+              onDeleteButtonClick={
+                userCode === admin?.userCode && userCode !== user?.userCode && onDeleteParticipant
+                  ? () => handleDeleteButtonClick(user)
+                  : undefined
+              }
             />
           ))}
         </div>
@@ -93,6 +121,26 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
             personalInfoData={selectedParticipant}
           />
         ) : null}
+
+        {participantToDelete && createPortal(
+          <div className="modal-container">
+            <div className="modal" style={{ maxWidth: '450px' }}>
+              <h3 className="modal__title">Confirm Deletion</h3>
+              <p className="modal__description" style={{ marginTop: '20px', marginBottom: '30px' }}>
+                Are you sure you want to remove {participantToDelete.firstName} {participantToDelete.lastName} from the room?
+              </p>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <Button variant="secondary" size="medium" onClick={handleDeleteCancel}>
+                  Cancel
+                </Button>
+                <Button variant="primary" size="medium" onClick={handleDeleteConfirm}>
+                  Delete
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
       </div>
     </div>
   );

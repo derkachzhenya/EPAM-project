@@ -2,6 +2,7 @@ import type { GetParticipantsResponse } from "@types/api.ts";
 
 export interface ParticipantsListProps {
   participants: GetParticipantsResponse;
+  onDeleteParticipant?: (participantId: number) => void;
 }
 
 export interface PersonalInformation {
@@ -11,4 +12,10 @@ export interface PersonalInformation {
   email?: string;
   deliveryInfo: string;
   link?: string;
+}
+
+export interface ParticipantToDelete {
+  id: number;
+  firstName: string;
+  lastName: string;
 }

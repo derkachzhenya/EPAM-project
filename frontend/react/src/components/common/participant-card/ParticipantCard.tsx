@@ -1,5 +1,6 @@
 import CopyButton from "../copy-button/CopyButton";
 import InfoButton from "../info-button/InfoButton";
+import IconButton from "../icon-button/IconButton";
 import ItemCard from "../item-card/ItemCard";
 import { type ParticipantCardProps } from "./types";
 import "./ParticipantCard.scss";
@@ -13,6 +14,7 @@ const ParticipantCard = ({
   adminInfo = "",
   participantLink = "",
   onInfoButtonClick,
+  onDeleteButtonClick,
 }: ParticipantCardProps) => {
   return (
     <ItemCard title={`${firstName} ${lastName}`} isFocusable>
@@ -33,7 +35,12 @@ const ParticipantCard = ({
         ) : null}
 
         {isCurrentUserAdmin && !isAdmin ? (
-          <InfoButton withoutToaster onClick={onInfoButtonClick} />
+          <>
+            <InfoButton withoutToaster onClick={onInfoButtonClick} />
+            {onDeleteButtonClick ? (
+              <IconButton iconName="delete" color="green" onClick={onDeleteButtonClick} />
+            ) : null}
+          </>
         ) : null}
 
         {!isCurrentUser && isAdmin ? (
