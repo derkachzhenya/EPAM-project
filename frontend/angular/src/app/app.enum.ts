@@ -168,6 +168,7 @@ export const enum ButtonText {
   ViewWishlist = 'View Wishlist',
   Cancel = 'Cancel',
   ViewInformation = 'View Information',
+  Delete = 'Delete',
 }
 
 export const enum ButtonType {

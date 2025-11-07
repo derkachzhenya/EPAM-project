@@ -22,6 +22,7 @@ import { PopupService } from '../../../core/services/popup';
 import { copyToClipboard } from '../../../utils/copy';
 import { UrlService } from '../../../core/services/url';
 import { ParticipantInfoModal } from '../../../room/components/participant-info-modal/participant-info-modal';
+import { ConfirmDeleteModal } from '../../../room/components/confirm-delete-modal/confirm-delete-modal';
 import { ModalService } from '../../../core/services/modal';
 import { getPersonalInfo } from '../../../utils/get-personal-info';
 import { UserService } from '../../../room/services/user';
@@ -154,16 +155,29 @@ export class ParticipantCard {
 
   public onDeleteClick(): void {
     const userId = this.participant().id;
-    if (confirm(`Are you sure you want to remove ${this.fullName()} from the room?`)) {
-      this.#userService.deleteUser(userId).subscribe({
-        error: () => {
-          this.#toasterService.show(
-            ToastMessage.DeleteFailed,
-            MessageType.Error
-          );
+    this.#modalService.openWithResult(
+      ConfirmDeleteModal,
+      { participantName: this.fullName() },
+      {
+        confirmDelete: () => {
+          this.#userService.deleteUser(userId).subscribe({
+            error: () => {
+              this.#toasterService.show(
+                ToastMessage.DeleteFailed,
+                MessageType.Error
+              );
+            }
+          });
+          this.#modalService.close();
+        },
+        cancelDelete: () => {
+          this.#modalService.close();
+        },
+        closeModal: () => {
+          this.#modalService.close();
         }
-      });
-    }
+      }
+    );
   }
 
   #showPopup(): void {

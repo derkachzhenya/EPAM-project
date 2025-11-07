@@ -1,0 +1,39 @@
+<div @dissolve class="modal__wrapper">
+  <div class="modal__overlay" aria-hidden="true"></div>
+
+  <section
+    appFocusTrap
+    class="modal"
+    role="dialog"
+    aria-modal="true"
+    tabindex="0"
+  >
+    <app-icon-button
+      class="modal__button-close"
+      [iconName]="closeIcon"
+      [ariaLabel]="closeButtonAriaLabel"
+      (click)="onCloseModal()"
+    />
+
+    <div class="modal__content">
+      <h3 class="modal__title">Confirm Deletion</h3>
+      <p class="modal__description">
+        Are you sure you want to remove {{ participantName() }} from the room?
+      </p>
+
+      <div class="modal__actions">
+        <app-button
+          class="secondary medium"
+          [text]="cancelButtonText"
+          (click)="onCancel()"
+        />
+
+        <app-button
+          class="primary medium"
+          [text]="deleteButtonText"
+          (click)="onConfirm()"
+        />
+      </div>
+    </div>
+  </section>
+</div>
