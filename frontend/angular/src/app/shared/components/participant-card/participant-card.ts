@@ -16,6 +16,7 @@ import {
   NavigationLinkSegment,
   PersonalLink,
   PopupPosition,
+  ToastMessage,
 } from '../../../app.enum';
 import { PopupService } from '../../../core/services/popup';
 import { copyToClipboard } from '../../../utils/copy';
@@ -24,6 +25,7 @@ import { ParticipantInfoModal } from '../../../room/components/participant-info-
 import { ModalService } from '../../../core/services/modal';
 import { getPersonalInfo } from '../../../utils/get-personal-info';
 import { UserService } from '../../../room/services/user';
+import { ToastService } from '../../../core/services/toast';
 import type { User } from '../../../app.models';
 
 @Component({
@@ -45,6 +47,7 @@ export class ParticipantCard {
   readonly #host = inject(ElementRef<HTMLElement>);
   readonly #modalService = inject(ModalService);
   readonly #userService = inject(UserService);
+  readonly #toasterService = inject(ToastService);
 
   public readonly isCurrentUser = computed(() => {
     const code = this.userCode();
@@ -58,6 +61,8 @@ export class ParticipantCard {
   public readonly ariaLabelCopy = AriaLabel.ParticipantLink;
   public readonly iconInfo = IconName.Info;
   public readonly ariaLabelInfo = AriaLabel.Info;
+  public readonly iconDelete = IconName.Delete;
+  public readonly ariaLabelDelete = AriaLabel.Delete;
 
   @HostBinding('tabindex') tab = 0;
   @HostBinding('class.list-row') rowClass = true;
@@ -145,6 +150,20 @@ export class ParticipantCard {
         })
       )
       .subscribe();
+  }
+
+  public onDeleteClick(): void {
+    const userId = this.participant().id;
+    if (confirm(`Are you sure you want to remove ${this.fullName()} from the room?`)) {
+      this.#userService.deleteUser(userId).subscribe({
+        error: () => {
+          this.#toasterService.show(
+            ToastMessage.DeleteFailed,
+            MessageType.Error
+          );
+        }
+      });
+    }
   }
 
   #showPopup(): void {
