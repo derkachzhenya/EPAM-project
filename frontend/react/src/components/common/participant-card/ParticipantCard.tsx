@@ -35,11 +35,12 @@ const ParticipantCard = ({
         ) : null}
 
         {isCurrentUserAdmin && !isAdmin ? (
-          <InfoButton withoutToaster onClick={onInfoButtonClick} />
-        ) : null}
-
-        {isCurrentUserAdmin && !isAdmin && onDeleteButtonClick ? (
-          <IconButton iconName="delete" color="green" onClick={onDeleteButtonClick} />
+          <>
+            <InfoButton withoutToaster onClick={onInfoButtonClick} />
+            {onDeleteButtonClick ? (
+              <IconButton iconName="delete" color="green" onClick={onDeleteButtonClick} />
+            ) : null}
+          </>
         ) : null}
 
         {!isCurrentUser && isAdmin ? (
