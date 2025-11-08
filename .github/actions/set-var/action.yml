@@ -46,26 +46,32 @@ runs:
         echo "Determining BASE_API_URL..."
 
         DOMAIN_NAME=$(grep -Po '^\s*domain_name\s*=\s*"\K[^"]+' terraform/terraform.tfvars || echo "marathon2025.pp.ua")
-        echo "got: $DOMAIN_NAME"
+        echo "Domain name: $DOMAIN_NAME"
 
         ALB_DNS=$(aws elbv2 describe-load-balancers \
                             --region ${{ inputs.aws-region }} \
-                            --query "LoadBalancers[0].DNSName" \
-                            --output text || echo "localhost:8080")
-        echo "got: $ALB_DNS"
+                            --query "LoadBalancers[?starts_with(LoadBalancerName, 'app')].DNSName | [0]" \
+                            --output text 2>/dev/null || echo "")
+
+        if [[ -z "$ALB_DNS" || "$ALB_DNS" == "None" ]]; then
+          echo "ALB not found, using localhost"
+          ALB_DNS="localhost:8080"
+        fi
+        echo "ALB DNS: $ALB_DNS"
 
         TEMP_URL="https://backend.${DOMAIN_NAME}"
-        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "${TEMP_URL}/api/system/info" || true)
+        RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "${TEMP_URL}/api/system/info" 2>/dev/null || echo "000")
 
         if [[ "$RESPONSE" == "200" ]] ; then
           BASE_API_URL="$TEMP_URL"
+          echo "Using domain URL: $BASE_API_URL"
         else
           BASE_API_URL="http://${ALB_DNS}"
+          echo "Using ALB URL: $BASE_API_URL"
         fi
 
-        echo "BASE_API_URL=$BASE_API_URL"
         echo "BASE_API_URL=$BASE_API_URL" >> $GITHUB_ENV
-        echo "Determined BASE_API_URL: $BASE_API_URL"
+        echo "Final BASE_API_URL: $BASE_API_URL"
 
 
     - name: Set React Environment
